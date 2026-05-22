@@ -24,11 +24,6 @@ The need for the minimalist images came from the official jetson images being la
 
 **L4T versions**: 32.x, 35.x, 36.x
 
-> [!IMPORTANT]
-> For jetson orin nano, you might need to update the firmware before being able to use an image based on l4t 36.x
->
-> check this [link](https://www.jetson-ai-lab.com/initial_setup_jon.html) for more information.
-
 ## Build the jetson image
 
 > [!NOTE]
@@ -48,26 +43,56 @@ git clone https://github.com/pythops/jetson-image
 cd jetson-image
 ```
 
-Then create a new rootfs with the desired ubuntu version.
+<br>
+
+### I. Create a new rootfs
+
+##### 1. WiFi configuration (Optional)
+
+The Wi-Fi configuration must be set up before running the build command so it can be properly baked into the image.
+
+Creates a file named `<network_name>.psk` in the `config/iwd/networks` directory with the following content
+
+```
+[Security]
+Passphrase=<WiFI Password>
+
+[Settings]
+AutoConnect=true
+```
+
+##### 2. Build the rootfs
 
 > [!NOTE]
 > Only the orin family boards can use ubuntu 24.04
 
-For ubuntu 24.04
+Run the following command
+
+```
+just build-jetson-rootfs <ubuntu_version>
+```
+
+This will create the rootfs in the `rootfs` directory.
+
+`ubuntu_version` can take on these values: `20.04`, `22.04`, `24.04`
+
+for example, to build roorfs based on `24.04`:
 
 ```
 just build-jetson-rootfs 24.04
 ```
 
-This will create the rootfs in the `rootfs` directory.
-
-> [!TIP]
+> [!NOTE]
 > You can modify the `Containerfile.rootfs.*` files to add any tool or configuration that you will need in the final image.
 
-Next, use the following command to build the Jetson image:
+<br>
+
+### II. Build the Jetson image:
 
 ```
+
 $ just build-jetson-image -b <board> -r <revision> -d <device> -l <l4t version>
+
 ```
 
 > [!TIP]
@@ -93,7 +118,9 @@ just build-jetson-image -h
 
 The Jetson image will be built and saved in the current directory in a file named `jetson.img`
 
-## Flashing the image into your board
+<br>
+
+## III. Flashing the image into your board
 
 To flash the jetson image, just run the following command:
 
@@ -107,13 +134,37 @@ For instance, if your sdard is recognized as `/dev/sda`, then replace `device` b
 > [!NOTE]
 > There are numerous tools out there to flash images to sd card that you can use. I stick with `dd` as it's simple and does the job.
 
-## Nvidia Libraries
+<br>
 
-Once you boot the board with the new image, then you can install Nvidia libraries using `apt`
+## IV. Boot the board
+
+#### Login
+
+Once you boot the board, you can login with:
+
+```
+username: jetson
+password: jetson
+```
+
+> [!NOTE]
+> ssh server is running by default and listen on the port 22
+
+#### Nvidia Libraries
+
+Nvidia libraries can be installed using `apt`
 
 ```bash
 $ sudo apt install -y libcudnn8 libcudnn8-dev ...
 ```
+
+#### New tools
+
+[impala](https://github.com/pythops/impala): A TUI for managing WiFi.
+
+[tegratop](https://github.com/pythops/tegratop): A Comprehensive TUI monitoring tool for Nvidia jetson boards.
+
+<br>
 
 ## Result
 

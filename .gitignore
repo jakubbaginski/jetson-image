@@ -1,4 +1,5 @@
 *.swp
 *.vagrant/
-jetson.img*
+*.img
 rootfs/
+config/iwd/networks/*
